@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+  <script>
+  function calculate()
+  {
+    var input = document.getElementById("inputtext").value;
+    var vals = input.split(",");
+    var k= vals[0];
+    var l= vals[1];
+    var r= vals[2];
+    var strawberries=[]
+    for (var i = 0; i < k; i++) {
+      strawberries[i]=[];
+      for (var j = 0; j < l; j++) {
+        strawberries[i].push(true);
+      }
+    }
+
+    var bad;
+    for (var i = 1; i < 3; i++) {
+      bad = document.getElementById("bad"+i).value;;
+      strawberries[bad.split(",")[0]-1][bad.split(",")[1]-1]=false;
+
+    }
+
+    var tmp = [];
+    for (var p = 0; p < r; p++) {
+      for (var i = 0; i < strawberries.length; i++)
+      tmp[i] = strawberries[i].slice();
+      for (var i = 0; i < k; i++) {
+        for (var j = 0; j < l; j++) {
+          if(!strawberries[i][j]){
+            if(i+1<k) tmp[i+1][j]=false;
+            if(j+1<l) tmp[i][j+1]=false;
+            if(i-1>-1) tmp[i-1][j]=false;
+            if(j-1>-1) tmp[i][j-1]=false;
+          }
+        }
+      }
+      for (var i = 0; i < tmp.length; i++)
+      strawberries[i] = tmp[i].slice();
+    }
+
+    var canvas = document.getElementById("berries");
+    var context = canvas.getContext('2d');
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    var cellWidth = Math.min(canvas.width / l,canvas.height / k);
+
+
+
+    var good=0;
+    for (var i = 0; i < k; i++) {
+      for (var j = 0; j < l; j++) {
+        if(strawberries[i][j]) {
+          context.beginPath();
+          context.arc(i * cellWidth+cellWidth/2, j * cellWidth+cellWidth/2, cellWidth/2, 0, 2 * Math.PI);
+          context.stroke();
+          context.fillStyle = "red";
+          context.fill();
+          good++;
+        }
+        else {
+          context.beginPath();
+          context.arc(i * cellWidth+cellWidth/2, j * cellWidth+cellWidth/2, cellWidth/2, 0, 2 * Math.PI);
+          context.stroke();
+          context.fillStyle = "black";
+          context.fill();
+        }
+      }
+    }
+    console.log(good);
+  }
+  </script>
+</head>
+<body>
+  <form autocomplete="off" id="input">
+    <label for="inputtext">Rows, Cols, Days</label>
+    <input type="text" id="inputtext" name="inputtext"/><br>
+    <label for="bad1">First bad strawberry</label>
+    <input type="text" id="bad1" name="bad1"/><br>
+    <label for="bad2">Second bad strawberry</label>
+    <input type="text" id="bad2" name="bad2"/><br>
+    <input type="button" id="submit" value="Calculate" onclick="calculate()" />
+  </form>
+  <canvas id="berries" width="500" height="500" style="border:1px solid #000000;"></canvas>
+
+</body>
