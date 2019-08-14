@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <script>
+
+  document.addEventListener("DOMContentLoaded", function(event) {
+    var n=prompt("number of circles");
+    var circles=[]
+    for (var i = 0; i < n; i++) {
+      var tmp = prompt("x y r");
+      var input = tmp.split(' ');
+      if(Number.isInteger(Number(input[0])) && Number.isInteger(Number(input[1])) && Number.isInteger(Number(input[2])) && input.length==3)
+      {
+        var circle = [Number(input[0]), Number(input[1]), Number(input[2])];
+        circles.push(circle);
+      }
+      else {
+        alert("Please insert 3 whole numbers, seperated by space");
+        i--;
+      }
+    }
+    var c = document.getElementById("visualization");
+    var ctx = c.getContext("2d");
+    ctx.translate(c.width/2, c.height/2);
+    var graph = new Graph();
+    for (var i = 0; i < circles.length; i++) {
+      for (var j = i; j < circles[i].length; j++) {
+        if (isCircleIntersect(circles[i][0],circles[i][1],circles[i][2],circles[j][0],circles[j][1],circles[j][2])){
+          graph.addEdge(i,j);
+        }
+      }
+
+      ctx.beginPath();
+      ctx.arc((circles[i][0]*20), -(circles[i][1]*20), circles[i][2]*20, 0, 2 * Math.PI);
+      ctx.stroke();
+    }
+      console.log(shortestPath(graph, 0, circles.length-1));
+
+
+      function Graph() {
+        var neighbors = this.neighbors = [];
+        this.addEdge = function(u, v) {
+          if (neighbors[u] === undefined) {
+            neighbors[u] = [];
+          }
+          neighbors[u].push(v);
+
+          if (neighbors[v] === undefined) {
+            neighbors[v] = [];
+          }
+          neighbors[v].push(u);
+        };
+        return this;
+      }
+
+      function shortestPath(graph, source, target) {
+        if (source == target) {
+          return source;
+        }
+        var queue = [ source ];
+        var visited = [];
+        for (var i = 0; i < graph.neighbors.length; i++) {
+          visited.push(false);
+        }
+        visited[source]=true;
+        var prev = [];
+        var tail = 0;
+
+        while (tail < queue.length) {
+          var u = queue[tail++];
+          var neighbors = graph.neighbors[u];
+          for (var i = 0; i < neighbors.length; ++i) {
+            var v = neighbors[i];
+            if (visited[v]) continue;
+            visited[v] = true;
+            if (v == target) {
+              var path = [ v ];
+              while (u != source) {
+                path.push(u);
+                u = prev[u];
+              }
+              path.push(u);
+              var c = document.getElementById("visualization");
+              var ctx = c.getContext("2d");
+              ctx.translate(c.width/2, c.height/2);
+              for (var i = 0; i < path.length-1; i++) {
+                ctx.beginPath();
+                ctx.moveTo(circles[path[i]][0],circles[path[i]][1]);
+                ctx.lineTo(circles[path[i+1]][0],circles[path[i+1]][1]);
+                ctx.stroke();
+
+              }
+              return path.length;
+            }
+            prev[v] = u;
+            queue.push(v);
+          }
+        }
+        return -1;
+      }
+
+      function isCircleIntersect(x0,y0,r0,x1,y1,r1) {
+        return (Math.abs(r0 - r1) < Math.sqrt(Math.pow((x0 - x1), 2) + Math.pow((y0 - y1), 2))) && (Math.sqrt(Math.pow((x0 - x1), 2) + Math.pow((y0 - y1), 2)) < (r0 + r1));
+      }
+  });
+
+
+
+
+  </script>
+</head>
+<body>
+  <canvas id="visualization" width="2000" height="1000"></canvas>
+</body>
