@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<head>
+  <title>Generic online store</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+  <script>
+  function Graph() {
+    var neighbors = this.neighbors = [];
+    this.addEdge = function(u, v) {
+      if (neighbors[u] === undefined) {
+        neighbors[u] = [];
+      }
+      neighbors[u].push(v);
+
+      if (neighbors[v] === undefined) {
+        neighbors[v] = [];
+      }
+      neighbors[v].push(u);
+    };
+    return this;
+  }
+
+  function shortestPath(graph, source, target) {
+    if (source == target) {
+      print(source);
+      return;
+    }
+    var queue = [ source ];
+    var visited = [];
+    for (var i = 0; i < graph.neighbors.length; i++) {
+      visited.push(false);
+    }
+    visited[source]=true;
+    var prev = [];
+    var tail = 0;
+
+    while (tail < queue.length) {
+      var u = queue[tail++];
+      var neighbors = graph.neighbors[u];
+      for (var i = 0; i < neighbors.length; ++i) {
+        var v = neighbors[i];
+        if (visited[v]) continue;
+        visited[v] = true;
+        if (v == target) {
+          var path = [ v ];
+          while (u != source) {
+            path.push(u);
+            u = predecessor[u];
+          }
+          path.push(u);
+          return path.length;
+        }
+        prev[v] = u;
+        queue.push(v);
+      }
+    }
+    return -1;
+  }
+
+document.addEventListener("DOMContentLoaded", function(event) {
+  var n=prompt("number of circles");
+  var circles=[]
+  for (var i = 0; i < n; i++) {
+    var tmp = prompt("x y r");
+    var input = tmp.split(' ');
+    if(Number.isInteger(Number(input[0])) && Number.isInteger(Number(input[1])) && Number.isInteger(Number(input[2])) && input.length==3)
+    {
+      var circle = [Number(input[0]), Number(input[1]), Number(input[2])];
+      circles.push(circle);
+    }
+    else {
+      alert("Please insert 3 whole numbers, seperated by space");
+      i--;
+    }
+  }
+
+  var graph = new Graph();
+  for (var i = 0; i < circles.length; i++) {
+    for (var j = 0; j < circles[i].length; j++) {
+      var a = circles[i][0] - circles[j][0];
+      var b = circles[i][1] - circles[j][1];
+      var r1 = circles[i][2];
+      var r2 = circles[j][2];
+      var c = Math.sqrt( a*a + b*b );
+      if (r1+r2>c){
+        graph.addEdge(i,j);
+      }
+    }
+    var c = document.getElementById("visualization");
+    var ctx = c.getContext("2d");
+    ctx.beginPath();
+    ctx.arc((circles[i][0]+500), (circles[i][1]+500), circles[i][2], 0, 2 * Math.PI);
+    ctx.stroke();
+  }
+    console.log(shortestPath(graph, 0, circles.length-1));
+});
+
+
+  </script>
+</head>
+<body>
+  <canvas id="visualization" width="1000" height="1000"></canvas>
+</body>
