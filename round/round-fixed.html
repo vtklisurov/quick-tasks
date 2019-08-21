@@ -4,10 +4,10 @@
   <script>
 
   document.addEventListener("DOMContentLoaded", function(event) {
-    while(!Number.isInteger(Number(n))){
+    while(!Number.isInteger(Number(n)) || n<2){
       var n=prompt("number of circles");
-      if(!Number.isInteger(Number(n)))
-      alert("Please insert a single whole number")
+      if(!Number.isInteger(Number(n)) || n<2)
+      alert("Please insert a single whole number, greater than 2")
     }
     var circles=[]
     for (var i = 0; i < n; i++) {
@@ -23,6 +23,33 @@
         i--;
       }
     }
+
+    if(n==2)
+    {
+      var c = document.getElementById("visualization");
+      var ctx = c.getContext("2d");
+      ctx.translate(c.width/2, c.height/2);
+      ctx.beginPath();
+      ctx.arc((circles[0][0]*20), -(circles[0][1]*20), circles[0][2]*20, 0, 2 * Math.PI);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc((circles[1][0]*20), -(circles[1][1]*20), circles[1][2]*20, 0, 2 * Math.PI);
+      ctx.stroke();
+      if (isCircleIntersect(circles[0][0],circles[0][1],circles[0][2],circles[1][0],circles[1][1],circles[1][2]))
+      {
+        alert("Shortest path: 1");
+        ctx.moveTo(circles[1][0]*20,-circles[1][1]*20);
+        ctx.font = "20px Arial";
+        ctx.fillText(0,circles[1][0]*20,-circles[1][1]*20);
+        var x = circles[0][0]*20
+        var y = -circles[0][1]*20
+        ctx.lineTo(x,y);
+        ctx.stroke();
+        ctx.fillText(1,x,y);
+      }
+      exit();
+    }
+
     var c = document.getElementById("visualization");
     var ctx = c.getContext("2d");
     ctx.translate(c.width/2, c.height/2);
@@ -33,7 +60,7 @@
           graph.addEdge(i,j);
         }
       }
-      
+
       ctx.beginPath();
       ctx.arc((circles[i][0]*20), -(circles[i][1]*20), circles[i][2]*20, 0, 2 * Math.PI);
       ctx.stroke();
@@ -115,9 +142,6 @@
       return (Math.abs(r0 - r1) < Math.sqrt(Math.pow((x0 - x1), 2) + Math.pow((y0 - y1), 2))) && (Math.sqrt(Math.pow((x0 - x1), 2) + Math.pow((y0 - y1), 2)) < (r0 + r1));
     }
   });
-
-
-
 
   </script>
 </head>
