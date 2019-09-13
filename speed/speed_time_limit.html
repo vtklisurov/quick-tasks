@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<head>
+  <style>
+
+  </style>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+  <script>
+
+    var cities = [];
+    var speed = []
+    var cnts=prompt();
+    var data=cnts.split(" ");
+    var speeds = []
+    doIt(data[0],data[1]);
+
+    async function doIt (cityCnt, roadCnt) {
+
+      for (var i = 0; i <= cityCnt; i++) {
+        cities.push({});
+        cities[i].neighbors = [];
+      }
+      for (var j = 0; j < roadCnt; j++) {
+        var input = prompt("City1, City2, Speed");
+        var road = input.split(" ");
+        speeds.push(road[2]);
+        cities[road[0]].neighbors.push({city: road[1]});
+        cities[road[0]].neighbors[cities[road[0]].neighbors.length-1].speed=road[2];
+        cities[road[1]].neighbors.push({city: road[0]});
+        cities[road[1]].neighbors[cities[road[1]].neighbors.length-1].speed=road[2];
+      }
+      console.log(cities)
+
+      speeds=speeds.sort();
+      var min;
+      var max;
+      var notDone=true;
+      var diffs = [];
+      var mindiff = 1000000000;
+      cnt=0
+
+      while(cnt++<10000){
+        for (var i = 0; i < speeds.length; i++) {
+          for (var j = i; j < speeds.length; j++) {
+            if(j==i)continue;
+            if (Math.abs(speeds[j]-speeds[i])<mindiff && !diffs.includes(mindiff))
+            {
+              mindiff = Math.abs(speeds[j]-speeds[i]);
+              min = Math.min(speeds[i],speeds[j]);
+              max = Math.max(speeds[i],speeds[j]);
+            }
+          }
+        }
+        diffs.push(mindiff);
+        mindiff = 1000000000
+        if(await test(min,max) == true){
+          console.log(min + ' ' + max)
+        }
+      }
+
+    }
+
+    function test (min, max) {
+      console.log('in test');
+      var visited = [];
+      for (var i = 0; i <= cities.length; i++) {
+        visited.push(false)
+      }
+      visited[1]=true;
+      for (var i = 1; i < cities.length; i++) {
+        for (var j = 0; j < cities[i].neighbors.length; j++) {
+          if (cities[i].neighbors[j].speed>min && cities[i].neighbors[j].speed<max) visited[j]=true;
+        }
+      }
+      for (var i = 1; i < visited.length; i++) {
+        if (!visited[i]) {
+          visited.fill(false);
+        }
+
+        return false;
+      }
+      return true
+    }
+
+
+
+  </script>
+</head>
+<body>
+
+</body>
