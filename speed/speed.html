@@ -7,64 +7,86 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
   <script>
 
-  var cities = [];
-  var speed = []
-  var cnts=prompt();
-  var data=cnts.split(" ");
-  var speeds = []
-  doIt(data[0],data[1]);
+  function validate(text){
+    var tmp
+    for (var i = 0; i < text.length; i++) {
+      tmp = text[i].split(" ");
+      if (i === 0 && tmp.length!==2) return false;
+      if (i !== 0 && tmp.length!==3) return false
+      for (var j = 0; j < tmp.length; j++) {
+        if (isNaN(tmp[j])){
+          return false
+        }
+      }
+    }
+    return true;
+  }
+
+  function init(){
+    var inputtext = document.getElementById('text').value;
+    input = inputtext.split('\n')
+    if (!validate(input)){
+      alert("Incorrect input format")
+      return
+    }
+    var cnts=input[0];
+    var data=cnts.split(" ");
+    doIt(data[0],data[1]);
+  }
 
   async function doIt (cityCnt, roadCnt) {
-
+    var cities = [];
+    var speeds = [];
+    var mins = [];
+    var maxes = [];
     for (var i = 0; i <= cityCnt; i++) {
       cities.push({});
       cities[i].neighbors = [];
     }
-    for (var j = 0; j < roadCnt; j++) {
-      var input = prompt("City1, City2, Speed");
-      var road = input.split(" ");
-      speeds.push(road[2]);
-      cities[road[0]].neighbors.push({city: road[1]});
-      cities[road[0]].neighbors[cities[road[0]].neighbors.length-1].speed=road[2];
+    for (var j = 1; j <= roadCnt; j++) {
+      var roads = input[j];
+      var road = roads.split(" ");
+      speeds.push(Number(road[2]));
+      cities[road[0]].neighbors.push({city: Number(road[1])});
+      cities[road[0]].neighbors[cities[road[0]].neighbors.length-1].speed=Number(road[2]);
       cities[road[1]].neighbors.push({city: road[0]});
-      cities[road[1]].neighbors[cities[road[1]].neighbors.length-1].speed=road[2];
+      cities[road[1]].neighbors[cities[road[1]].neighbors.length-1].speed=Number(road[2]);
     }
 
+    speeds=speeds.sort((a, b) => a - b);
 
-    speeds=speeds.sort();
-    var min;
-    var max;
     var notDone=true;
     var diffs = [];
     var mindiff = 1000000000;
-    var last = mindiff;
+    var last = -1;
+    var candids = [];
+    var mins = [];
+    var maxes = [];
+    var index;
     cnt=0
 
-    while(cnt++<100){
-      for (var i = 0; i < speeds.length; i++) {
-        for (var j = i; j < speeds.length; j++) {
-          //if(Math.abs(speeds[j]-speeds[i] && test(speeds[i],speeds[j]))) test(speeds[i], speeds[j]);
-          if (Math.abs(speeds[j]-speeds[i])<mindiff && !diffs.includes(speeds[j]-speeds[i]))
-          {
-            mindiff = Math.abs(speeds[j]-speeds[i]);
-            min = Math.min(speeds[i],speeds[j]);
-            max = Math.max(speeds[i],speeds[j]);
-          }
+    for (var i = 0; i < speeds.length-1; i++) {
+      for (var j = i+1; j < speeds.length; j++) {
+        if(await test(speeds[i] ,speeds[j], cities) == true){
+          candids.push(speeds[j] - speeds[i]);
+          mins.push(speeds[i]);
+          maxes.push(speeds[j]);
         }
       }
-      diffs.push(mindiff);
-      last = mindiff;
-      mindiff = 1000000000
-
-      if(await test(min ,max) == true){
-        console.log('Answer: ' + min + ' ' + max)
-        return
+      if (i == speeds.length-2){
+        for (var k = 0; k < candids.length; k++) {
+          if (candids[k]<mindiff) {
+            mindiff = candids[k];
+            index = k;
+          }
+          if (k == candids.length-1) alert("Answer: " + mins[index] + " " + maxes[index])
+        }
       }
     }
   }
 
-  function test (min, max) {
 
+  function test (min, max, cities) {
     var visited = [];
     for (var i = 0; i < cities.length; i++) {
       visited.push(false)
@@ -97,8 +119,9 @@
     return true;
   }
 
-  </script>
+</script>
 </head>
 <body>
-
+  <textarea id="text" cols="40" rows="30"></textarea>
+  <button onclick="init()">Submit</button>
 </body>
